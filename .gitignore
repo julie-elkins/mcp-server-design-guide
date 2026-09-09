@@ -1,0 +1,11 @@
+# This repository is PUBLIC.
+#
+# skills/ holds the machine-readable form of the standards in README.md, written
+# for a local agent rather than for a reader. Those files cite specific private
+# repositories by name as worked examples, which is what makes them useful and
+# what makes them unpublishable. They stay on disk and are symlinked into
+# ~/.claude/skills/ so they load in every session; they are never tracked here.
+#
+# If a generalized, publishable version is ever wanted, add it under a different
+# path. Do not remove this entry to publish these files as they stand.
+skills/
