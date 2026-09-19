@@ -9,3 +9,14 @@
 # If a generalized, publishable version is ever wanted, add it under a different
 # path. Do not remove this entry to publish these files as they stand.
 skills/
+
+# .claude/CLAUDE.md is this repo's project instructions, and it is local for the
+# same reason: it records what must not be published from here, which is not
+# itself a thing to publish. Ignored rather than merely untracked, because an
+# untracked file in a public repository is one careless `git add` from being
+# outward-facing.
+#
+# That is the whole reason. This path is NOT a containment control: AGENTS.md is not
+# preloaded as project instructions on Claude Code 2.1.278, so a CLAUDE.md here
+# suppresses nothing.
+.claude/
