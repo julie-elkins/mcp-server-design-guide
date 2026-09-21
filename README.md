@@ -20,7 +20,68 @@ said so.
 
 These are the fifteen practices I apply to every new server by default, followed by
 four things that no tool will ever complain about and that I have only ever found by
-sitting down and auditing.
+sitting down and auditing. But first, the question that comes before all of them.
+
+## Should it be a server at all?
+
+There is a recurring argument that MCP servers are a token-inefficiency trap — that
+every tool definition rides along in the prompt on every turn, so cost grows with the
+size of your surface, and you would be better off with a single `execute_code` tool
+that discovers capabilities at runtime. The argument is half right, and the right half
+is not fixed by building the server well. So settle it before writing a schema.
+
+**The mechanism claim is out of date.** I measured my own setup on 2026-09-21: 26
+configured servers publishing roughly 690 tools. Tool *schemas* were not resident. Only
+the names were, and a schema had to be fetched before its tool could be called — the
+client had already implemented the progressive disclosure the critique asks for. What
+stays resident is the name list plus each server's `instructions` block. That is a real
+cost and a much smaller one, and a critique aimed at "the whole surface travels every
+turn" is arguing with a version that has been fixed.
+
+**The billing claim is also wrong, and it matters that you know why.** A static tool
+surface sits in the cached prefix of the prompt, where re-reads bill at a fraction of
+input price. "Linear growth with each turn" describes context *occupancy*, not the
+invoice. If you argue about surface size on token grounds you will get a caching
+rebuttal and you will deserve it.
+
+**What does not get cheaper is the model's ability to choose.** Every tool you add is
+one more candidate to be chosen wrongly among, and a wrong-tool choice is silent in
+exactly the way this whole document is about — the call succeeds, the agent
+summarizes, nobody sees the payload. There is a cruder version of the same hazard:
+tool names are capped in length, and a server whose name is long enough pushes its
+longest tool names past the cap, where they simply stop existing with no error
+anywhere. Surface size degrades correctness before it degrades your bill. Argue it
+there.
+
+So the decision rule is not about tokens. It is about what the server's value
+actually is:
+
+- **If the value is access** — authenticated reach into an API that a script could
+  have called anyway — then one code-execution tool beats one tool per operation. This
+  is not hypothetical; at least one major cloud provider ships precisely that shape,
+  a single `run_script` tool with the SDK importable inside it, and it displaces
+  dozens of per-operation tools at the cost of one name.
+- **If the value is the contract** — a refusal channel, a list of the checks that were
+  skipped, a stated provenance on every threshold, a "here is what this result does not
+  show" attached to every payload — then it has to be a server, because the contract
+  *is* the product. Hand an agent raw access instead and it reaches the same verdicts
+  with nothing left to stop it reporting an empty finding list as a clean result.
+
+Which means the interesting case is the mixed server: mostly thin wrapper, with one or
+two tools carrying a real contract. Split it. Do not defend it whole.
+
+**One measurement trap, because I walked into it.** If you want to know which of your
+servers earn their surface, count invocations — and be careful how. Matching tool names
+across 220 of my own session transcripts ranked my *least*-used server first: one
+publishing around 130 tools, with 65 real calls in its life, scored nearly 118,000
+apparent "uses." Every session's tool listing names every tool a server publishes, so a
+wide idle server outscores a narrow busy one by construction. Parse the actual tool-call
+records instead. When I did, nine servers accounted for about 330 of the 690 names
+against 87 calls in all of recorded history.
+
+A wide surface manufactures its own evidence of being needed. That is the same failure
+this document is built around — an absent signal read as a present one — committed one
+level up, against your own architecture instead of against your users.
 
 ## The schema is your entire user interface
 
