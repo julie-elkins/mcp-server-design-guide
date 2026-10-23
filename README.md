@@ -6,6 +6,11 @@ by Julie Elkins
 
 ---
 
+This is the MCP-specific guide in the public
+[AI Design Guides hub](https://github.com/julie-elkins/ai-design-guides). Start at the
+hub if you are looking for the general agent-systems patterns, the production
+operations guides, the readiness checklist, or the learner path.
+
 Most guidance on building Model Context Protocol servers reads like API design
 guidance, because MCP looks like API design. It isn't, quite. An HTTP API is called
 by code that a human wrote against a spec they read. An MCP tool is called by a
