@@ -23,6 +23,11 @@ is not the exception — an exception is loud and someone fixes it. It's the
 The tool worked. The agent summarized. The answer was wrong and nothing anywhere
 said so.
 
+Use the companion [MCP Evaluation Checklist](MCP_EVALUATION_CHECKLIST.md) to
+test whether the tool contract, environment, state transition, refusal behavior,
+and repeated agent interaction support the declared task. It complements this
+design standard; it does not replace protocol tests or human review.
+
 These are the fifteen practices I apply to every new server by default, followed by
 four things that no tool will ever complain about and that I have only ever found by
 sitting down and auditing. But first, the question that comes before all of them.
@@ -233,6 +238,46 @@ sitting down and looking.
   because it is prepended to the system prompt of every session that loads you.
 - **Pin published bounds against their constants with a test.** Any limit you state
   in prose rather than as a schema keyword will drift away from the code silently.
+- **Your `instructions` and your tool descriptions are truncated, and nothing tells
+  you.** The client sends the model only the text before the cut. In Claude Code the
+  default is **4,096 characters** for server instructions and for the description of a
+  tool that loads up front, and **16,384** for a description the model loads through
+  tool search — current as of v2.1.296, and 2,048 before it, so treat the number as
+  dated rather than fixed and read
+  [the docs](https://code.claude.com/docs/en/mcp) rather than quoting this line.
+  There is no error, no warning and no log entry. Two consequences worth designing
+  around:
+  - **Put the load-bearing text first.** Not just the important prose — tool search
+    matches the model's query against only the part inside the *shorter* limit, so the
+    words someone would search for have to be near the start too.
+  - **The host override replaces both limits at once**, in opposite directions:
+    `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH=8192` raises the 4,096 one and *lowers*
+    the 16,384 one. It is not a dial you turn up.
+
+  Measured on four servers written to this standard: all four were over the older
+  2,048 limit, two are still over at 4,096, and one of those by **two characters**.
+  The worst case was a block whose lost tail held five prohibitions, including a
+  containment rule cut mid-word — so the model received the sentence saying data stays
+  in the file and not the sentence saying what it must not do with it. **Assert the
+  rules land inside the delivered span, not merely that they exist in the constant.**
+  A test that searches the whole string passes while the text never arrives; that is
+  what happened here, and the phrase-list test went on being green throughout.
+- **Per-tool loading is controllable, and it interacts with the limit above.** Set
+  `"anthropic/alwaysLoad"` in a tool's `_meta` to force it up front or keep it
+  deferred; the person configuring your server can override you. A tool that loads up
+  front gets the shorter budget.
+
+## Why these practices are structured this way
+
+The design reasoning is recorded in
+[DESIGN_DECISIONS.md](DESIGN_DECISIONS.md), using the shared
+[decision-reasoning template](https://github.com/julie-elkins/agent-systems-design-guide/blob/main/DESIGN_DECISION_TEMPLATE.md).
+Each record connects the caller problem to the rejected alternative, the protocol
+implementation, the verification boundary, and the cost of getting the choice wrong.
+
+That makes the standard teachable: a newer engineer can trace official protocol guidance
+to a schema or refusal decision, run the relevant check, and see what the check still
+does not prove.
 
 ## Test it as a real client, over stdio, in a committed test
 
