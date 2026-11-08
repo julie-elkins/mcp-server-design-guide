@@ -14,6 +14,9 @@ correctly, safely, and repeatedly to reach the declared task outcome.
 - [ ] Are required arguments actually required?
 - [ ] Are bounds, defaults, enums, and nullable values explicit?
 - [ ] Does the result expose freshness, provenance, completeness, and refusal state?
+- [ ] When meaning affects the result, does the payload expose the semantic context
+      used—definitions, relationships, scope, and source limits—or state that this
+      check is not applicable?
 - [ ] Can an agent distinguish an empty result from a successful result with no data?
 - [ ] Does every refusal state the cheapest safe correction?
 
