@@ -43,6 +43,9 @@ correctly, safely, and repeatedly to reach the declared task outcome.
 - [ ] Does the test use the real MCP protocol boundary, including initialization
       and serialized schemas?
 - [ ] Are tests credential-free and based on synthetic fixtures?
+- [ ] Do child-process arguments avoid literal credential values?
+- [ ] Are credential files or environment handoffs permission-restricted and
+      removed after the child exits?
 - [ ] Is there a known-good case?
 - [ ] Is there an empty or incomplete-result case that must not pass?
 - [ ] Is there a wrong-tool or wrong-argument case?

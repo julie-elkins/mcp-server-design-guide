@@ -217,6 +217,29 @@ And note which case is dangerous — it is not the failure. A guess that *fails*
 harmless. A guess that *succeeds* returns a genuine record belonging to somebody
 else, so it needs a warning in words, in the payload.
 
+## A cross-cutting rule: credential values stay out of `argv`
+
+If a server or its execution wrapper starts a child process, never put a credential
+value in `argv` (the process-visible argument list). A process can succeed and still
+leak its API key to local inspection tools, diagnostics, crash reports, or another
+wrapper that records command arguments.
+
+Pass only the credential name through a declared environment allow-list, or use a
+user-readable-only temporary environment file when the child runtime requires an
+explicit file. Remove secret-valued `-e NAME=value` arguments before launching the
+child, use a unique temporary path, and delete the file on every exit path. Treat
+both the configuration boundary and the process boundary as testable controls:
+
+- reject literal secret-valued arguments in configuration;
+- assert synthetic secrets are absent from the child process arguments and captured
+  output;
+- assert the temporary file has restrictive permissions and is gone after exit;
+- test direct and wrapper-mediated execution paths, because protecting one path does
+  not protect a sibling path that falls through to the runtime.
+
+This does not make a credential safe to publish or log. It only keeps the value out
+of a process interface that was not designed to carry secrets.
+
 ## The four things only an audit finds
 
 None of these produce an error. Nothing warns you. I found all four by deliberately
