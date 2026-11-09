@@ -47,6 +47,8 @@ correctly, safely, and repeatedly to reach the declared task outcome.
       and serialized schemas?
 - [ ] Are tests credential-free and based on synthetic fixtures?
 - [ ] Do child-process arguments avoid literal credential values?
+- [ ] Do orchestrator-created intermediate child arguments avoid literal
+      credential values before the final runtime is launched?
 - [ ] Are credential files or environment handoffs permission-restricted and
       removed after the child exits?
 - [ ] Is there a known-good case?
