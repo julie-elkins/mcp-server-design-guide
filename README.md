@@ -226,9 +226,10 @@ wrapper that records command arguments.
 
 Pass only the credential name through a declared environment allow-list, or use a
 user-readable-only temporary environment file when the child runtime requires an
-explicit file. Remove secret-valued `-e NAME=value` arguments before launching the
-child, use a unique temporary path, and delete the file on every exit path. Treat
-both the configuration boundary and the process boundary as testable controls:
+explicit file. Remove secret-valued `-e NAME=value` arguments before launching
+every intermediate child, not only the final runtime, use a unique temporary path,
+and delete the file on every exit path. Treat the configuration boundary and
+every process boundary as testable controls:
 
 - reject literal secret-valued arguments in configuration;
 - assert synthetic secrets are absent from the child process arguments and captured
@@ -236,6 +237,8 @@ both the configuration boundary and the process boundary as testable controls:
 - assert the temporary file has restrictive permissions and is gone after exit;
 - test direct and wrapper-mediated execution paths, because protecting one path does
   not protect a sibling path that falls through to the runtime.
+- fail closed when a provider-backed profile omits the approved credential
+  transport hook, rather than silently selecting a legacy path.
 
 This does not make a credential safe to publish or log. It only keeps the value out
 of a process interface that was not designed to carry secrets.

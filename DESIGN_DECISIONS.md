@@ -105,20 +105,25 @@ The format follows the
 - **Decision:** Pass provider credentials through an explicit environment
   allow-list or a user-readable-only temporary environment file. Reject literal
   secret-valued arguments at configuration load, remove secret-valued `-e
-  NAME=value` arguments before launching the child, and delete temporary files on
-  every exit path.
+  NAME=value` arguments before launching every intermediate child, and delete
+  temporary files on every exit path. A provider-backed profile must fail
+  closed if it does not select the approved transport hook.
 - **Instead of:** Passing `NAME=value` through Docker-compatible command arguments
   because the container runtime accepts it.
 - **Why:** Container isolation does not erase the host process boundary. A value
   that is valid for the container can still be visible before the container starts.
   The configuration boundary and the process boundary therefore need separate
   controls.
-- **Implementation:** The adapter's Finch shim handles both Anthropic and OpenAI
-  provider keys across direct and Compose execution paths. The public adapter
-  rejects literal provider values and retains only metadata in receipts.
+- **Implementation:** The adapter's Harbor environment handles provider values
+  before Docker argument construction, and its Finch shim handles both
+  Anthropic and OpenAI provider keys across direct and Compose execution paths.
+  The public adapter rejects literal provider values and retains only metadata
+  in receipts.
 - **Verification:** Synthetic tests assert that provider values are absent from
-  captured Finch arguments, that the protected temporary file is removed after
-  exit, and that a configuration containing a literal provider value is refused.
+  generated loader commands and captured Finch arguments, that the protected
+  temporary file is removed after exit, that multiline values are refused, and
+  that a provider-backed configuration without the approved environment hook is
+  refused.
 - **Costs if wrong:** A wrapper-specific path may remain unprotected, or an
   environment-file implementation may leave a readable credential artifact.
   The direct-path tests and cleanup assertion are required because a passing
